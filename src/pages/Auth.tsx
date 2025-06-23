@@ -38,8 +38,8 @@ const Auth: React.FC = () => {
       }
 
       // Prepare API endpoint and payload
-      const endpoint = isSignup ?  'http://localhost:5000/api/auth/register'  // ✅ matches your backend route
-  : 'http://localhost:5000/api/auth/login';
+      const endpoint = isSignup ?  'http://localhost:5000/api/auth/register' 
+  : ' https://moodmate-d4ei.onrender.com/api/auth/login';
       const payload = isSignup 
         ? {
             email: formData.email.trim(),

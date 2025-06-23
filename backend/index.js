@@ -31,3 +31,8 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server is running on port ${PORT}`);
 });
+
+app.use(cors({
+  origin: 'https://mood-mate-liart.vercel.app/', // ✅ or your deployed frontend URL later
+  credentials: true,
+}));
