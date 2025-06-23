@@ -1,0 +1,78 @@
+const express = require("express");
+const router = express.Router();
+const Mood = require("../models/Mood");
+
+// POST route to add mood
+router.post("/add", async (req, res) => {
+  try {
+    const { mood, description, date } = req.body;
+
+    const newMood = new Mood({
+      mood,
+      description,
+      date,
+    });
+
+    await newMood.save();
+
+    res.status(201).json({ message: "Mood added successfully!" });
+  } catch (error) {
+    console.error("Error adding mood:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+// ✅ GET route → to fetch all moods
+router.get("/", async (req, res) => {
+  try {
+    const moods = await Mood.find(); // fetches all moods from DB
+    res.status(200).json(moods); // sends it back to frontend/Postman
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ✅ PUT route → to update a mood by ID
+router.put("/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params; // mood ID from URL
+    const cleanId = id.trim(); 
+    const { mood, description, date } = req.body; // new data from frontend/Postman
+
+    const updatedMood = await Mood.findByIdAndUpdate(
+      id,
+      { mood, description, date },
+      { new: true } // returns the updated document
+    );
+
+    if (!updatedMood) {
+      return res.status(404).json({ message: "Mood not found!" });
+    }
+
+    res.status(200).json(updatedMood);
+  } catch (error) {
+    console.error("Error updating mood:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ✅ DELETE route → to delete a mood by ID
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedMood = await Mood.findByIdAndDelete(id);
+
+    if (!deletedMood) {
+      return res.status(404).json({ message: "Mood not found!" });
+    }
+
+    res.status(200).json({ message: "Mood deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting mood:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
+module.exports = router;
