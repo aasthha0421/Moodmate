@@ -6,8 +6,9 @@ export async function createMoodEntry(entry: {
   notes?: string;
 }) {
   const token = localStorage.getItem('token'); // Or wherever you store the token after login
+const API_URL = import.meta.env.VITE_API_URL;
 
-  const response = await fetch('http://localhost:5000/api/mood/add', {
+  const response = await fetch(`${API_URL}/api/mood/add`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -24,14 +25,14 @@ export async function createMoodEntry(entry: {
   return await response.json();
 }
 export async function getAllMoods() {
-  const response = await fetch('http://localhost:5000/api/mood');
+  const response = await fetch(`${API_URL}/api/mood`);
   if (!response.ok) {
     throw new Error('Failed to fetch moods');
   }
   return await response.json();
 }
 export async function deleteMoodEntry(id: string) {
-  const response = await fetch(`http://localhost:5000/api/mood/delete/${id}`, {
+  const response = await fetch(`${API_URL}/api/mood/delete/${id}`, {
     method: 'DELETE',
   });
 

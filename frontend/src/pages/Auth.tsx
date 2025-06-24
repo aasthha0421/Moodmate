@@ -36,10 +36,11 @@ const Auth: React.FC = () => {
         setError('Please fill in all fields! ✨');
         return;
       }
+const API_URL = import.meta.env.VITE_API_URL;
 
       // Prepare API endpoint and payload
-      const endpoint = isSignup ?  'http://localhost:5000/api/auth/register' 
-  : ' https://moodmate-d4ei.onrender.com/api/auth/login';
+      const endpoint = isSignup ?  `${API_URL}/api/auth/register`
+  : `${API_URL}/api/auth/login`;
       const payload = isSignup 
         ? {
             email: formData.email.trim(),

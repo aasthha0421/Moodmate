@@ -55,6 +55,7 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // Remove any existing entry for today
+    const API_URL = import.meta.env.VITE_API_URL;
     const today = format(new Date(), 'yyyy-MM-dd');
     const filteredEntries = entries.filter(e => e.date !== today);
 
@@ -62,7 +63,7 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       // ✅ Save to MongoDB backend
-      const response = await fetch('https://moodmate-d4ei.onrender.com/api/mood/add', {
+      const response = await fetch(`${API_URL}/api/mood/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -89,7 +90,7 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setEntries(prevEntries => prevEntries.filter(entry => entry.id !== entryId));
 
       // Delete from MongoDB backend
-      const response = await fetch(`https://moodmate-d4ei.onrender.com/api/mood/${entryId}`, {
+      const response = await fetch(`${API_URL}/api/mood/${entryId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -110,7 +111,7 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ✅ Fetch moods from MongoDB → use this for History Page
   const fetchEntriesFromDB = async () => {
     try {
-      const response = await fetch('https://moodmate-d4ei.onrender.com/api/moods');
+      const response = await fetch(`${API_URL}/api/mood`);
       if (!response.ok) throw new Error('Failed to fetch moods from DB');
 
       const moodsFromDB = await response.json();

@@ -33,6 +33,6 @@ app.listen(PORT, () => {
 });
 
 app.use(cors({
-  origin: 'https://mood-mate-liart.vercel.app/', // ✅ or your deployed frontend URL later
+  origin: 'http://localhost:5173', // ✅ or your deployed frontend URL later
   credentials: true,
 }));

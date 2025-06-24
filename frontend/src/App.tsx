@@ -33,7 +33,7 @@ function App() {
                 <Route path="about" element={<About />} />
               </Route>
             </Route>
-              <Route path="*" element={<div>Page Not Found</div>} />
+              {/* <Route path="*" element={<div>Page Not Found</div>} /> */}
           </Routes>
         </Router>
       </MoodProvider>
