@@ -16,7 +16,7 @@ interface MoodContextType {
   addEntry: (entry: Omit<MoodEntry, 'id' | 'timestamp'>) => void;
   getEntriesForRange: (days: number) => MoodEntry[];
   getTodaysEntry: () => MoodEntry | undefined;
-  fetchEntriesFromDB: () => void;
+  fetchEntriesFromDB: () => Promise<void>;
   deleteEntry: (entryId: string) => Promise<void>;
 }
 
@@ -32,6 +32,7 @@ export const useMood = () => {
 
 export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [entries, setEntries] = useState<MoodEntry[]>([]);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Load from localStorage on first render
   useEffect(() => {
@@ -54,15 +55,11 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timestamp: Date.now(),
     };
 
-    // Remove any existing entry for today
-    const API_URL = import.meta.env.VITE_API_URL;
     const today = format(new Date(), 'yyyy-MM-dd');
     const filteredEntries = entries.filter(e => e.date !== today);
-
     setEntries([newEntry, ...filteredEntries]);
 
     try {
-      // ✅ Save to MongoDB backend
       const response = await fetch(`${API_URL}/api/mood/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -86,10 +83,8 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ✅ Delete entry from BOTH localStorage & MongoDB
   const deleteEntry = async (entryId: string) => {
     try {
-      // Remove from local state first
       setEntries(prevEntries => prevEntries.filter(entry => entry.id !== entryId));
 
-      // Delete from MongoDB backend
       const response = await fetch(`${API_URL}/api/mood/${entryId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
@@ -97,14 +92,11 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (!response.ok) {
         console.error("❌ Failed to delete from MongoDB");
-        // Optionally revert local state if backend fails
-        // You might want to refetch entries from DB or show error
       } else {
         console.log("✅ Mood deleted from MongoDB successfully");
       }
     } catch (error) {
       console.error("❌ Error deleting mood from MongoDB:", error);
-      // Optionally revert local state if there's an error
     }
   };
 
@@ -116,13 +108,12 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const moodsFromDB = await response.json();
 
-      // Convert to MoodEntry format (if needed)
       const formattedMoods: MoodEntry[] = moodsFromDB.map((mood: any) => ({
         id: mood._id,
         date: mood.date,
         mood: mood.mood,
-        moodEmoji: '', // Add emoji if you want
-        intensity: 5, // Placeholder or calculate based on mood
+        moodEmoji: '', // You can customize
+        intensity: 5, // Adjust based on mood or remove if not needed
         notes: mood.description,
         timestamp: new Date(mood.date).getTime(),
       }));
