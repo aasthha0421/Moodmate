@@ -33,6 +33,6 @@ app.listen(PORT, () => {
 });
 
 app.use(cors({
-  origin: ['http://localhost:5173','https://moodmate-rho.vercel.app/'], // ✅ or your deployed frontend URL later
+  origin: ['http://localhost:5173','https://moodmate-brff.vercel.app/'], // ✅ or your deployed frontend URL later
   credentials: true,
 }));
