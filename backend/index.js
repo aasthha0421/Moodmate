@@ -6,9 +6,12 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
-app.use(express.json()); 
+app.use(cors({
+  origin: ['https://moodmate-brff.vercel.app', 'http://localhost:5173'], 
+  credentials: true,
+}));
+
+app.use(express.json());
 
 // Routes
 const moodRoutes = require('./routes/moodRoutes');
@@ -19,8 +22,8 @@ app.use("/api/auth", authRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("✅ MongoDB connected successfully!"))
-.catch((err) => console.error("❌ MongoDB connection error:", err));
+  .then(() => console.log("✅ MongoDB connected successfully!"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // Routes Example (Test Route)
 app.get("/", (req, res) => {
@@ -31,8 +34,3 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server is running on port ${PORT}`);
 });
-
-app.use(cors({
-  origin: ['http://localhost:5173','https://moodmate-brff.vercel.app/'], // ✅ or your deployed frontend URL later
-  credentials: true,
-}));
