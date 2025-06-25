@@ -18,6 +18,16 @@ app.use('/api/mood', moodRoutes);
 const authRoutes = require("./routes/authRoutes");
 app.use("/api/auth", authRoutes);
 
+
+const path = require("path");
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
+
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("✅ MongoDB connected successfully!"))
@@ -28,12 +38,6 @@ app.get("/", (req, res) => {
   res.send("Welcome to MoodMate Backend 🚀");
 });
 
-// Serve frontend from the backend
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-});
 
 
 // Start the server
