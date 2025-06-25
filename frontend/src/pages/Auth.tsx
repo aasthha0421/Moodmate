@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Mail, Lock, User, Sparkles, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Auth: React.FC = () => {
   const navigate = useNavigate();
+  const { login, signup, isLoading } = useAuth(); // ✅ AuthContext methods
   const [isSignup, setIsSignup] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -17,93 +18,35 @@ const Auth: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
-    try {
-      // Client-side validation
-      if (isSignup) {
-        if (formData.password !== formData.confirmPassword) {
-          setError('Passwords do not match! 💔');
-          return;
-        }
-        if (formData.name.trim().length < 2) {
-          setError('Please enter your name! 🌸');
-          return;
-        }
-      }
+    if (formData.email.trim() === '' || formData.password.trim() === '') {
+      setError('Please fill in all fields! ✨');
+      return;
+    }
 
-      if (formData.email.trim().length === 0 || formData.password.trim().length === 0) {
-        setError('Please fill in all fields! ✨');
+    if (isSignup) {
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match! 💔');
         return;
       }
-const API_URL = import.meta.env.VITE_API_URL;
-
-      // Prepare API endpoint and payload
-      const endpoint = isSignup ?  `${API_URL}/api/auth/register`
-  : `${API_URL}/api/auth/login`;
-      const payload = isSignup 
-        ? {
-            email: formData.email.trim(),
-            password: formData.password,
-            name: formData.name.trim()
-          }
-        : {
-            email: formData.email.trim(),
-            password: formData.password
-          };
-
-      // Make API call
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      // Check if response has content before parsing JSON
-      let data;
-      const contentType = response.headers.get('content-type');
-      
-      if (contentType && contentType.includes('application/json')) {
-        const responseText = await response.text();
-        if (responseText) {
-          try {
-            data = JSON.parse(responseText);
-          } catch (parseError) {
-            console.error('JSON parse error:', parseError);
-            setError('Server response error! Please try again 🔄');
-            return;
-          }
-        } else {
-          data = {};
-        }
-      } else {
-        // Handle non-JSON responses
-        const responseText = await response.text();
-        console.error('Non-JSON response:', responseText);
-        setError(`Server error: ${response.status} ${response.statusText} 🚨`);
+      if (formData.name.trim().length < 2) {
+        setError('Please enter your name! 🌸');
         return;
       }
 
-      if (response.ok) {
-        // Store JWT token in localStorage
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user || {}));
-        }
-        
-        // Navigate to app home
+      const success = await signup(formData.name, formData.email, formData.password);
+      if (success) {
         navigate('/app/home');
       } else {
-        // Handle API errors
-        setError(data?.message || `${response.status}: ${isSignup ? 'Signup failed! Please try again 😔' : 'Invalid email or password! 😔'}`);
+        setError('Signup failed! Please try again 😔');
       }
-    } catch (error) {
-      console.error('Auth error:', error);
-      setError('Something went wrong! Please check your connection 🌐');
-    } finally {
-      setIsLoading(false);
+    } else {
+      const success = await login(formData.email, formData.password);
+      if (success) {
+        navigate('/app/home');
+      } else {
+        setError('Invalid email or password! 😔');
+      }
     }
   };
 
@@ -112,7 +55,7 @@ const API_URL = import.meta.env.VITE_API_URL;
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError(''); // Clear error when user starts typing
+    setError('');
   };
 
   return (
@@ -123,8 +66,6 @@ const API_URL = import.meta.env.VITE_API_URL;
         <div className="absolute top-32 right-20 w-16 h-16 bg-pink-200/40 rounded-full blur-lg animate-float" style={{ animationDelay: '1s' }}></div>
         <div className="absolute bottom-40 left-1/4 w-24 h-24 bg-cyan-200/25 rounded-full blur-2xl animate-float" style={{ animationDelay: '2s' }}></div>
         <div className="absolute top-1/2 right-10 w-12 h-12 bg-blue-300/35 rounded-full blur-md animate-float" style={{ animationDelay: '0.5s' }}></div>
-        
-        {/* Sparkle elements */}
         <div className="absolute top-20 right-1/3 text-blue-300/60 text-2xl animate-sparkle">✨</div>
         <div className="absolute bottom-1/3 left-20 text-pink-300/60 text-xl animate-sparkle" style={{ animationDelay: '1.5s' }}>💫</div>
         <div className="absolute top-1/3 left-1/2 text-cyan-300/60 text-lg animate-sparkle" style={{ animationDelay: '0.8s' }}>⭐</div>
@@ -132,7 +73,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 
       <div className="flex items-center justify-center min-h-screen pt-8 px-4 sm:px-6 relative z-10">
         <div className="max-w-md w-full">
-          {/* Back Button */}
           <button
             onClick={() => navigate('/')}
             className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 mb-6 transition-colors duration-300"
@@ -141,7 +81,6 @@ const API_URL = import.meta.env.VITE_API_URL;
             <span>Back to Home</span>
           </button>
 
-          {/* Header */}
           <div className="text-center mb-8 animate-fade-in">
             <div className="flex justify-center items-center mb-4">
               <div className="text-4xl animate-wiggle mr-2">🌸</div>
@@ -160,14 +99,11 @@ const API_URL = import.meta.env.VITE_API_URL;
             </div>
           </div>
 
-          {/* Auth Form */}
           <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-blue-100 animate-slide-up relative overflow-hidden">
-            {/* Decorative elements */}
             <div className="absolute top-4 right-4 text-blue-200 text-2xl animate-sparkle">✨</div>
             <div className="absolute bottom-4 left-4 text-pink-200 text-xl animate-sparkle" style={{ animationDelay: '1s' }}>💕</div>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-              {/* Name Field (Signup only) */}
               {isSignup && (
                 <div className="animate-slide-up">
                   <label className="block text-sm font-medium text-blue-700 mb-2 flex items-center space-x-1">
@@ -187,7 +123,6 @@ const API_URL = import.meta.env.VITE_API_URL;
                 </div>
               )}
 
-              {/* Email Field */}
               <div>
                 <label className="block text-sm font-medium text-blue-700 mb-2 flex items-center space-x-1">
                   <Mail className="w-4 h-4" />
@@ -205,7 +140,6 @@ const API_URL = import.meta.env.VITE_API_URL;
                 />
               </div>
 
-              {/* Password Field */}
               <div>
                 <label className="block text-sm font-medium text-blue-700 mb-2 flex items-center space-x-1">
                   <Lock className="w-4 h-4" />
@@ -223,7 +157,6 @@ const API_URL = import.meta.env.VITE_API_URL;
                 />
               </div>
 
-              {/* Confirm Password Field (Signup only) */}
               {isSignup && (
                 <div className="animate-slide-up">
                   <label className="block text-sm font-medium text-blue-700 mb-2 flex items-center space-x-1">
@@ -243,14 +176,12 @@ const API_URL = import.meta.env.VITE_API_URL;
                 </div>
               )}
 
-              {/* Error Message */}
               {error && (
                 <div className="bg-pink-50/80 border border-pink-200 rounded-2xl p-4 animate-slide-up">
                   <p className="text-pink-600 text-sm font-medium">{error}</p>
                 </div>
               )}
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -268,7 +199,6 @@ const API_URL = import.meta.env.VITE_API_URL;
                 )}
               </button>
 
-              {/* Toggle Auth Mode */}
               <div className="text-center">
                 <button
                   type="button"
@@ -290,7 +220,6 @@ const API_URL = import.meta.env.VITE_API_URL;
             </form>
           </div>
 
-          {/* Fun Quote */}
           <div className="mt-8 text-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <div className="bg-gradient-to-r from-blue-100/80 via-pink-50/80 to-cyan-100/80 backdrop-blur-sm rounded-2xl p-4 border border-blue-200/50 relative overflow-hidden">
               <div className="absolute top-2 right-2 text-blue-300 text-lg animate-sparkle">🌈</div>

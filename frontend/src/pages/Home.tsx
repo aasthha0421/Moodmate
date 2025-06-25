@@ -61,7 +61,7 @@ const Home: React.FC = () => {
           <div className="flex justify-center items-center mb-4">
             <div className="text-4xl animate-wiggle mr-2">🌸</div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent">
-              Hello, {user?.name.split(' ')[0]}! 💙
+              Hello, {user?.name?.split(' ')[0] || 'Friend'}! 💙
             </h1>
             <div className="text-4xl animate-wiggle ml-2">🌸</div>
           </div>

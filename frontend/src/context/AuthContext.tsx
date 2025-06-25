@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// ✅ Update: User interface includes token
 export interface User {
   id: string;
   email: string;
   name: string;
   joinedDate: string;
-  token: string;  // <-- NEW: Store token here
+  token: string;
 }
 
 interface AuthContextType {
@@ -21,7 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
@@ -31,66 +30,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
-    const savedUser = localStorage.getItem('moodmate-user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    const storedUser = localStorage.getItem('user'); // ✅ make this match what Auth.tsx saves
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        console.warn("Failed to parse stored user");
+        setUser(null);
+      }
     }
     setIsLoading(false);
   }, []);
-const API_URL = import.meta.env.VITE_API_URL;
+
   const login = async (email: string, password: string): Promise<boolean> => {
-  setIsLoading(true);
-  try {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
-    });
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-    if (!response.ok) {
-      setIsLoading(false);
+      if (!response.ok) return false;
+
+      const data = await response.json();
+
+      const userData: User = {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        joinedDate: new Date().toISOString(),
+        token: data.token
+      };
+
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData)); // ✅ matches Auth.tsx
+      return true;
+    } catch (err) {
+      console.error("Login error:", err);
       return false;
+    } finally {
+      setIsLoading(false);
     }
-
-    const data = await response.json();
-
-    const userData: User = {
-      id: data.id,       // ✅ Use data.id, data.email, etc.
-      email: data.email,
-      name: data.name,
-      joinedDate: new Date().toISOString(),  // You can set this yourself if not provided by backend
-      token: data.token
-    };
-
-    setUser(userData);
-    localStorage.setItem('moodmate-user', JSON.stringify(userData));
-    setIsLoading(false);
-    return true;
-  } catch (err) {
-    console.error(err);
-    setIsLoading(false);
-    return false;
-  }
-};
+  };
 
   const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
       });
 
-      if (!response.ok) {
-        setIsLoading(false);
-        return false;
-      }
+      if (!response.ok) return false;
 
       const data = await response.json();
 
@@ -98,24 +94,24 @@ const API_URL = import.meta.env.VITE_API_URL;
         id: data.user._id,
         email: data.user.email,
         name: data.user.name,
-        joinedDate: data.user.joinedDate,
+        joinedDate: data.user.joinedDate ?? new Date().toISOString(),
         token: data.token
       };
 
       setUser(userData);
-      localStorage.setItem('moodmate-user', JSON.stringify(userData));
-      setIsLoading(false);
+      localStorage.setItem('user', JSON.stringify(userData)); // ✅ same key as login
       return true;
     } catch (err) {
-      console.error(err);
-      setIsLoading(false);
+      console.error("Signup error:", err);
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('moodmate-user');
+    localStorage.removeItem('user');
   };
 
   return (
