@@ -29,12 +29,10 @@ app.get("/", (req, res) => {
 });
 
 // Serve frontend from the backend
-const frontendPath = path.join(__dirname, "../frontend/build/index.html");
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-app.use(express.static(frontendPath));
-
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
 
