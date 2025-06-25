@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 });
 
 // Serve frontend from the backend
-const frontendPath = path.join(__dirname, "../client/dist");
+const frontendPath = path.join(__dirname, "../frontend/build/index.html");
 
 app.use(express.static(frontendPath));
 
