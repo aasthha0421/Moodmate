@@ -25,6 +25,7 @@ const API_URL = import.meta.env.VITE_API_URL;
   return await response.json();
 }
 export async function getAllMoods() {
+  const API_URL = import.meta.env.VITE_API_URL;
   const response = await fetch(`${API_URL}/api/mood`);
   if (!response.ok) {
     throw new Error('Failed to fetch moods');
@@ -32,6 +33,7 @@ export async function getAllMoods() {
   return await response.json();
 }
 export async function deleteMoodEntry(id: string) {
+  const API_URL = import.meta.env.VITE_API_URL;
   const response = await fetch(`${API_URL}/api/mood/delete/${id}`, {
     method: 'DELETE',
   });
