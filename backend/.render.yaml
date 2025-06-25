@@ -3,8 +3,8 @@ services:
     name: moodmate
     env: node
     plan: free
-    buildCommand: cd client && npm install && npm run build
-    startCommand: cd backend && npm install && npm run start
+    buildCommand: npm run build
+    startCommand: npm start
     envVars:
       - key: MONGO_URI
         value: mongodb+srv://moodmateuser:whatever4.@cluster0.smfxtdg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
