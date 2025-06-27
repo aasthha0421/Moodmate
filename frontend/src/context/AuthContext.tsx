@@ -33,17 +33,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user'); // ✅ make this match what Auth.tsx saves
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        console.warn("Failed to parse stored user");
-        setUser(null);
-      }
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch (err) {
+      console.warn("⚠️ Corrupt user data in localStorage");
+      localStorage.removeItem('user');
+      setUser(null);
     }
-    setIsLoading(false);
-  }, []);
+  }
+  setIsLoading(false);
+}, []);
+
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
@@ -97,6 +99,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       joinedDate: new Date().toISOString(), // or pass this from backend too
       token: data.token
       };
+
+      
+    localStorage.removeItem('user'); // ✅ Clean up any stale user data
+    localStorage.setItem('user', JSON.stringify(userData)); // ✅ Save fresh data
+    setUser(data); // update context
 
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData)); // ✅ same key as login
