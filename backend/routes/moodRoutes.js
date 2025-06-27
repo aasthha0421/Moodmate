@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Mood = require("../models/Mood");
+const protect = require("../middleware/authMiddleware");
+
 
 // POST route to add mood
 router.post("/add", async (req, res) => {
@@ -11,6 +13,7 @@ router.post("/add", async (req, res) => {
       mood,
       description,
       date,
+      user: req.user._id,
     });
 
     await newMood.save();
@@ -22,10 +25,10 @@ router.post("/add", async (req, res) => {
   }
 });
 // ✅ GET route → to fetch all moods
-router.get("/", async (req, res) => {
+router.get("/", protect, async (req, res) => {
   try {
-    const moods = await Mood.find(); // fetches all moods from DB
-    res.status(200).json(moods); // sends it back to frontend/Postman
+    const moods = await Mood.find({ user: req.user._id }).sort({ date: -1 });
+    res.status(200).json(moods);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

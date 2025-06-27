@@ -25,17 +25,30 @@ const API_URL = import.meta.env.VITE_API_URL;
   return await response.json();
 }
 export async function getAllMoods() {
+  const token = localStorage.getItem('token');
   const API_URL = import.meta.env.VITE_API_URL;
-  const response = await fetch(`${API_URL}/api/mood`);
-  if (!response.ok) {
+  
+  const response = await fetch(`${API_URL}/api/mood`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+ if (!response.ok) {
     throw new Error('Failed to fetch moods');
   }
+
   return await response.json();
 }
+
 export async function deleteMoodEntry(id: string) {
+  const token = localStorage.getItem('token');
   const API_URL = import.meta.env.VITE_API_URL;
+
   const response = await fetch(`${API_URL}/api/mood/delete/${id}`, {
     method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {

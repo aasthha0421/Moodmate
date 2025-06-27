@@ -10,6 +10,7 @@ const moodSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
+    ref: "User",
     default: Date.now,
   },
 });
