@@ -91,11 +91,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await response.json();
 
       const userData: User = {
-        id: data.user._id,
-        email: data.user.email,
-        name: data.user.name,
-        joinedDate: data.user.joinedDate ?? new Date().toISOString(),
-        token: data.token
+      id: data.id,
+      email: data.email,
+      name: data.name,
+      joinedDate: new Date().toISOString(), // or pass this from backend too
+      token: data.token
       };
 
       setUser(userData);
