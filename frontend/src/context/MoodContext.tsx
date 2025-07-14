@@ -58,12 +58,10 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const today = format(new Date(), 'yyyy-MM-dd');
     const filteredEntries = entries.filter(e => e.date !== today);
     setEntries([newEntry, ...filteredEntries]);
-const token = localStorage.getItem('token');
     try {
       const response = await fetch(`${API_URL}/api/mood/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+        headers: { 'Content-Type': 'application/json'
          },
         body: JSON.stringify({
           mood: newEntry.mood,
@@ -86,11 +84,9 @@ const token = localStorage.getItem('token');
   const deleteEntry = async (entryId: string) => {
     try {
       setEntries(prevEntries => prevEntries.filter(entry => entry.id !== entryId));
-const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/api/mood/${entryId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' ,
-          Authorization: `Bearer ${token}`,
+        headers: { 'Content-Type': 'application/json' 
         },
       });
 
