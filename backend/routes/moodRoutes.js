@@ -5,13 +5,22 @@ const protect = require("../middleware/authMiddleware");
 
 
 // POST route to add mood
-router.post("/add", async (req, res) => {
+router.post("/add", protect, async (req, res) => {
   try {
-    const { mood, description, date } = req.body;
+    const { mood, moodEmoji, intensity, notes, date } = req.body;
+
+     if (!mood) {
+      return res.status(400).json({ message: "Mood is required" });
+    }
+
+    console.log("📥 Body:", req.body);
+    console.log("👤 User:", req.user);
 
     const newMood = new Mood({
       mood,
-      description,
+      moodEmoji,
+      intensity,
+      notes,
       date,
       user: req.user._id,
     });
