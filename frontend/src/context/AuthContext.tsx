@@ -36,7 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const storedUser = localStorage.getItem('user');
   if (storedUser) {
     try {
-      setUser(JSON.parse(storedUser));
+    //  setUser(JSON.parse(storedUser));
+    const userData = JSON.parse(storedUser);
+        setUser(userData);
+      localStorage.setItem('token', userData.token);
+
     } catch (err) {
       console.warn("⚠️ Corrupt user data in localStorage");
       localStorage.removeItem('user');
@@ -69,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(userData);
+      localStorage.setItem('token', userData.token);
       localStorage.setItem('user', JSON.stringify(userData)); // ✅ matches Auth.tsx
       return true;
     } catch (err) {
@@ -101,10 +106,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       
-    localStorage.removeItem('user'); // ✅ Clean up any stale user data
-    localStorage.setItem('user', JSON.stringify(userData)); // ✅ Save fresh data
-    setUser(data); // update context
-
+    // localStorage.removeItem('user'); // ✅ Clean up any stale user data
+    // localStorage.setItem('user', JSON.stringify(userData)); // ✅ Save fresh data
+    // setUser(data); // update context
+    localStorage.setItem('token', userData.token);
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData)); // ✅ same key as login
       return true;
@@ -119,6 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   return (

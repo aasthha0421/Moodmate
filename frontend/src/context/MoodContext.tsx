@@ -61,7 +61,8 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await fetch(`${API_URL}/api/mood/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json'
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
          },
         body: JSON.stringify({
           mood: newEntry.mood,
@@ -86,7 +87,8 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setEntries(prevEntries => prevEntries.filter(entry => entry.id !== entryId));
       const response = await fetch(`${API_URL}/api/mood/${entryId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' 
+        headers: { 'Content-Type': 'application/json' ,
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
       });
 
@@ -103,7 +105,11 @@ export const MoodProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ✅ Fetch moods from MongoDB → use this for History Page
   const fetchEntriesFromDB = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/mood`);
+      const response = await fetch(`${API_URL}/api/mood`, {
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
+  }
+});
       if (!response.ok) throw new Error('Failed to fetch moods from DB');
 
       const moodsFromDB = await response.json();
